@@ -1,7 +1,7 @@
 # BilinearImageResize<br />
 Bilinear Image Resize with openmp/cuda<br />
 <br />
-Reqrequirements:<br />
+Requirements:<br />
 Visual Studio C++ 2013+<br />
 CUDA 7+<br />
 OpenCV 2.4.9+<br />
