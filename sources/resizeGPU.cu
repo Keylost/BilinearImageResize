@@ -1,5 +1,6 @@
 
 #include "resizeGPU.cuh"
+//#define _DEBUG
 
 __global__ void SomeKernel(int32_t* originalImage, int32_t* resizedImage, int w, int h, int w2, int h2, float x_ratio, float y_ratio)
 {
@@ -45,7 +46,7 @@ __global__ void SomeKernel(int32_t* originalImage, int32_t* resizedImage, int w,
 
 int32_t* resizeBilinear_gpu(int32_t* pixels, int w, int h, int w2, int h2)
 {
-	//int32_t* temp = new int32_t[w2*h2];
+	cudaError_t error; //store cuda error codes
 	float x_ratio = ((float)(w - 1)) / w2;
 	float y_ratio = ((float)(h - 1)) / h2;
 
@@ -61,7 +62,15 @@ int32_t* resizeBilinear_gpu(int32_t* pixels, int w, int h, int w2, int h2)
 	int32_t* deviceData;
 	cudaMalloc((void**)&deviceData, w*h * sizeof(int32_t));
 	//  опирование исходных данных в GPU дл€ обработки
-	cudaMemcpy(deviceData, pixels, w*h * sizeof(int32_t), cudaMemcpyHostToDevice);
+	error = cudaMemcpy(deviceData, pixels, w*h * sizeof(int32_t), cudaMemcpyHostToDevice);
+	//error = cudaMemcpyToSymbol(deviceData, pixels, w*h * sizeof(int32_t),0, cudaMemcpyHostToDevice);
+#ifdef _DEBUG
+	if (error != cudaSuccess)
+	{
+		printf("cudaMemcpy (pixels->deviceData), returned error %s (code %d), line(%d)\n", cudaGetErrorString(error), error, __LINE__);
+		exit(EXIT_FAILURE);
+	}
+#endif
 
 	dim3 threads = dim3(256);
 	dim3 blocks = dim3(w2*h2 / 256);
