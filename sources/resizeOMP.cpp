@@ -1,14 +1,15 @@
 #include "resizeOMP.hpp"
+//#include "omp.h"
 
 int* resizeBilinear_omp(int* pixels, int w, int h, int w2, int h2)
 {
 	int32_t* temp = new int32_t[w2*h2];
 	float x_ratio = ((float)(w - 1)) / w2;
 	float y_ratio = ((float)(h - 1)) / h2;
-
+	omp_set_num_threads(24);
 #pragma omp parallel //num_threads(8)
 	{
-#pragma omp for
+#pragma omp for //schedule(static, w /24)
 		for (int i = 0; i < h2; i++)
 		{
 			int32_t a, b, c, d, x, y, index;
